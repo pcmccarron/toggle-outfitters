@@ -80,7 +80,7 @@ export default async function handler(
 
     if (enableStripe) {
       const products = await listAllProducts();
-      const allowedCategories = newProductExperienceAccess.split(",");
+      const allowedCategories = newProductExperienceAccess.replace(/\s/, '').split(',');
 
       const filteredProducts = products.filter((product) =>
         allowedCategories.includes(product.metadata.category)
@@ -103,6 +103,8 @@ export default async function handler(
           };
         })
       );
+
+      // console.log('product list temp', productListTemp);
 
       return res.json(productListTemp);
     } else {
