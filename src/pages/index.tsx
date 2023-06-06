@@ -8,24 +8,20 @@ import { fontSans } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
-  // We'll need to import the flag, make sure you uncomment the next line!
-  // const { storeEnabled } = useFlags();
+  const { storeEnabled } = useFlags();
 
   return (
-    <div className={cn("font-sans", fontSans.variable)}>
-      <Head>
-        <title>Toggle Outfitters</title>
-      </Head>
-      <header className={styles.header}>
-        <NavigationMenuDemo />
-      </header>
-      {/******************************************************
-      * Right now the code below is only pulling one component 
-      ********************************************************/}
-      <StorePreview /> 
-      {/**********************************************************
-       * Replace the above component with the code from the guide 
-       **********************************************************/}
+    <div className={cn("font-sohne")}>
+        <Head>
+          <title>Toggle Outfitters</title>
+        </Head>
+        <div className="min-h-screen bg-black">
+        <header className={`fixed z-50 ${styles.header}`}>
+          <NavigationMenuDemo />
+        </header>
+        
+        {storeEnabled ? <StoreLaunch /> : <StorePreview />}
+        </div>
     </div>
   );
 }

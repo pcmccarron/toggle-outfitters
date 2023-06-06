@@ -70,14 +70,42 @@ export default async function handler(
       jsonObject = JSON.parse(json);
     }
 
-    /*****************************************************************************
-     * we're missing the code to retrieve the new products, get this from the guide 
-     ******************************************************************************/
+    enableStripe = await ldClient.variation("enableStripe", jsonObject, false);
+    newProductExperienceAccess = await ldClient.variation(
+      "new-product-experience-access",
+      jsonObject,
+      "toggle"
+    );
 
-    return res.json(product)
-    
-    /**************************************************************************
-     * Replacement code goes above this block
-     **************************************************************************/
+    if (enableStripe) {
+      const products = await listAllProducts();
+       const allowedCategories = newProductExperienceAccess.replace(/\s/, '').split(",");
+
+      const filteredProducts = products.filter((product) =>
+        allowedCategories.includes(product.metadata.category)
+      );
+
+      const productListTemp = await Promise.all(
+        filteredProducts.map(async (product, i) => {
+          const priceId = product.default_price;
+          const price =
+            typeof priceId === "string" ? await getPriceFromApi(priceId) : 0;
+
+          return {
+            id: i,
+            product_id: product.metadata.product_id,
+            description: product.description,
+            price_id: priceId,
+            category: product.metadata.category,
+            image: product.metadata.image,
+            price: price / 100, // Add the price field
+          };
+        })
+      );
+
+      return res.json(productListTemp);
+    } else {
+      return res.json(product);
+    }
   }
 }

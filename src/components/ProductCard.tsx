@@ -1,34 +1,48 @@
 import styles from "@/styles/Home.module.css";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  CardDescription,
+} from "@/components/ui/card";
 import CornerAccent from "./ui/corner-accent";
+import { cn } from "@/lib/utils";
 
-const ProductCard = ({ item, isGoggle, isFeatured, children, featuredProductLabel }: any) => {
+const ProductCard = ({
+  item,
+  isGoggle,
+  isFeatured,
+  children,
+  featuredProductLabel,
+}: any) => {
   return (
-    <Card className="m-2 border-2 shadow-md rounded-xl group relative flex flex-col justify-center items-center h-72 animate-fade-in">
-      {(isGoggle || isFeatured) && (
+    <Card
+      className={cn(
+        "flex w-[280px] h-auto m-5 group shadow-xl relative flex-col justify-center items-center animate-fade-in grid-rows-2"
+      )}
+    >
+      {(isGoggle && isFeatured) && (
         <CornerAccent label={isFeatured ? featuredProductLabel : "NEW"} />
       )}
-      <div className="group-hover:blur-[25px] transition-all duration-300 flex flex-col items-center">
-        <CardHeader className="flex flex-col items-center">
-          <img
-            className="h-48 w-48"
-            src={"/images/"+item.image}
-            alt={item.name}
-            loading="lazy"
-            style={{ padding: 10 }}
-          />
-          <CardTitle>{item.name||item.product_id}</CardTitle>
-        </CardHeader>
-      </div>
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center transition-opacity duration-300">
-        <CardContent className="flex flex-col justify-center items-center">
-          <p className="mb-2 text-center">{item.description}</p>
-          <div className="flex justify-center w-full">{children}</div>
-          <p className="text-center mt-5">
-            Price per unit:{" "}
-            <span style={{ color: "green" }}>${item.price} </span>
-          </p>
-        </CardContent>
+      <CardHeader className="grid row-start-1">
+        <img
+          className="h-36 w-36"
+          src={"/images/" + item.image}
+          alt={item.name}
+          loading="lazy"
+          style={{ padding: 10 }}
+        />
+      </CardHeader>
+      <div className={`grid h-full w-full row-start-2 ${styles.cardlower}`}>
+      <CardContent >
+        <CardTitle className={`${styles.cardtitle} font-sohnemono pt-4 text-white`}>{item.name || item.product_id}</CardTitle>
+        <CardDescription className={`${styles.carddescription} pt-4 pb-4`}>{item.description}</CardDescription>
+      </CardContent>
+      <CardFooter>
+        <div className="flex justify-center w-full">{children}</div>
+      </CardFooter>
       </div>
     </Card>
   );
