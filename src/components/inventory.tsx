@@ -25,7 +25,7 @@ const Inventory = () => {
   // import flags
   const {
     devdebug,
-    //billing, You'll want to uncomment this flag in order for things to work!
+    billing,
     enableStripe,
     newProductExperienceAccess,
     featuredProductLabel,
@@ -61,10 +61,16 @@ const Inventory = () => {
 
   // define metric for experimentation
   const client = useLDClient();
-
-  /******************************************
-   * We're missing experimentation code here
-   ******************************************/
+  async function experimentData() {
+    if (client) {
+      client.track("Add to Cart Click", client.getContext(), 1);
+      console.log("We're sending data to the experiment");
+      client.track("storeClicks");
+      client.flush();
+    } else {
+      console.log("boo hiss, we are not sending data to the experiment");
+    }
+  }
 
   const {
     data: stripeProducts,
@@ -117,22 +123,30 @@ const Inventory = () => {
             item={product}
             featuredProductLabel={featuredProductLabel}
             isGoggle={product.category === "goggle"}
-            isFeatured={featuredProductLabel && index < 4}
+            isFeatured={index < 4}
           >
-            {/********************************************************************
-             * We're missing some code here to enable our new cart functionality!
-             ********************************************************************/}
-            <ReserveButton
-              setHandleModal={setHandleModal}
-              handleModal={handleModal}
-              handleClickTest={handleClickTest}
-              updateField={updateField}
-              formData={{ name, email }}
-              onButtonClick={onButtonClick}
-            />
-            {/*****************************************************************
-             * Make sure you replace the code above with your new cart code!
-             ******************************************************************/}
+            {billing ? (
+              <AddToCartButton
+                product={product}
+                errorTesting={errorTesting}
+                experimentData={experimentData}
+              />
+            ) : (
+              <ReserveButton
+                setHandleModal={setHandleModal}
+                handleModal={handleModal}
+                handleClickTest={handleClickTest}
+                updateField={updateField}
+                formData={{ name, email }}
+                onButtonClick={onButtonClick}
+              />
+            )}
+            {billing && (
+              <ErrorDialog
+                errorState={errorState}
+                setErrorState={setErrorState}
+              />
+            )}
           </ProductCard>
         ))}
       </div>

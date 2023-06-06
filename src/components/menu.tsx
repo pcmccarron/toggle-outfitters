@@ -31,12 +31,9 @@ const NavigationMenuDemo = () => {
   const {
     billing,
     storeEnabled,
-
-    /**********Uncomment these flags and add above as needed******** 
-    // adminMode, 
-    // newProductExperienceAccess,
-    // devdebug,
-    ****************************************************************/
+    adminMode,
+    newProductExperienceAccess,
+    devdebug,
   } = useFlags();
   const { cartCount } = useShoppingCart();
 
@@ -63,14 +60,87 @@ const NavigationMenuDemo = () => {
         <Image src={ts} className="ml-4 p-2" alt="logo" height={55} />
       </Link>
       <NavigationMenuList>
-        {/***********************************************************************
-        USE CASE 3: We are missing code for the country selection and debug menu
-        *************************************************************************/}
-
-        {/**********************************************************************   
-        USE CASE 2: We are missing code here for the admin menu functionality
-        **********************************************************************/}
-
+        {devdebug ? (
+          <NavigationMenu.Item>
+            <NavigationMenuTrigger>
+              <Button className="bg-orange-500 text-white">
+                Debug: App Data
+                <CaretDownDebug aria-hidden />
+              </Button>
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <List>
+                <ListItem title="Selected Country">{uiCountry}</ListItem>
+                <ListItem title="Product Categories">
+                  {newProductExperienceAccess
+                    .replaceAll('"', "")
+                    .replaceAll(",", "s, ")}
+                  s
+                </ListItem>
+                <ListItem title="Admin Access">
+                  {adminMode ? "Enabled" : "Disabled"}
+                </ListItem>
+                <ListItem title="Billing API">
+                  {billing ? "Enabled" : "Disabled"}
+                </ListItem>
+              </List>
+            </NavigationMenuContent>
+          </NavigationMenu.Item>
+        ) : null}
+        {devdebug ? (
+          <NavigationMenu.Item>
+            <NavigationMenuTrigger>
+              <Button className="bg-orange-500 text-white">
+                Debug: Country Override
+                <CaretDownDebug aria-hidden />
+              </Button>
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <List>
+                <ListItem onClick={changeCountry.bind(null, "US")} title="USA">
+                  🇺🇸
+                </ListItem>
+                <ListItem
+                  onClick={changeCountry.bind(null, "MX")}
+                  title="Mexico"
+                >
+                  🇲🇽
+                </ListItem>
+                <ListItem
+                  onClick={changeCountry.bind(null, "CA")}
+                  title="Canada"
+                >
+                  🇨🇦
+                </ListItem>
+                <ListItem
+                  onClick={changeCountry.bind(null, "UK")}
+                  title="United Kingdom"
+                >
+                  🇬🇧
+                </ListItem>
+                <ListItem
+                  onClick={changeCountry.bind(null, "FR")}
+                  title="France"
+                >
+                  🇫🇷
+                </ListItem>
+                <ListItem
+                  onClick={changeCountry.bind(null, "PT")}
+                  title="Portugal"
+                >
+                  🇵🇹
+                </ListItem>
+              </List>
+            </NavigationMenuContent>
+          </NavigationMenu.Item>
+        ) : null}
+        {adminMode ? (
+          <NavigationMenu.Item>
+            <NavigationMenuLink>
+              <AdminPanel />
+            </NavigationMenuLink>
+          </NavigationMenu.Item>
+        ) : null}
         {billing && storeEnabled ? (
           <NavigationMenu.Item>
             <NavigationMenuTrigger>
@@ -88,10 +158,13 @@ const NavigationMenuDemo = () => {
           </NavigationMenu.Item>
         ) : null}
         <NavigationMenu.Item>
-          <NavigationMenuTrigger>
+          <NavigationMenuLink>
             <Login />
-          </NavigationMenuTrigger>
+          </NavigationMenuLink>
         </NavigationMenu.Item>
+        <NavigationMenuIndicator>
+          <Arrow />
+        </NavigationMenuIndicator>
       </NavigationMenuList>
       <ViewportPosition>
         <NavigationMenuViewport />
@@ -128,6 +201,16 @@ const scaleIn = keyframes({
 const scaleOut = keyframes({
   from: { transform: "rotateX(0deg) scale(1)", opacity: 1 },
   to: { transform: "rotateX(-10deg) scale(0.95)", opacity: 0 },
+});
+
+const fadeIn = keyframes({
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+});
+
+const fadeOut = keyframes({
+  from: { opacity: 1 },
+  to: { opacity: 0 },
 });
 
 const NavigationMenuRoot = styled(NavigationMenu.Root, {
@@ -172,6 +255,16 @@ const NavigationMenuTrigger = styled(NavigationMenu.Trigger, {
   gap: 2,
 });
 
+const NavigationMenuLink = styled(NavigationMenu.Link, {
+  ...itemStyles,
+  display: "flex",
+  textDecoration: "none",
+  alignItems: "center",
+  justifyContent: "space-between",
+  zIndex: 999,
+  gap: 2,
+});
+
 const NavigationMenuContent = styled(NavigationMenu.Content, {
   position: "absolute",
   zIndex: 999,
@@ -187,13 +280,25 @@ const NavigationMenuContent = styled(NavigationMenu.Content, {
   '&[data-motion="to-end"]': { animationName: exitToRight },
 });
 
+const NavigationMenuIndicator = styled(NavigationMenu.Indicator, {
+  display: "flex",
+  alignItems: "flex-end",
+  justifyContent: "center",
+  height: 10,
+  top: "100%",
+  overflow: "visible",
+  zIndex: 1,
+  transition: "width, transform 200ms ease",
+  '&[data-state="visible"]': { animation: `${fadeIn} 200ms ease` },
+  '&[data-state="hidden"]': { animation: `${fadeOut} 50ms ease` },
+});
+
 const NavigationMenuViewport = styled(NavigationMenu.Viewport, {
   position: "relative",
   transformOrigin: "top center",
-  marginTop: 10,
   zIndex: 999,
   width: "100%",
-  backgroundColor: "white",
+  backgroundColor: slate.slate4,
   borderRadius: 6,
   overflow: "hidden",
   boxShadow:
@@ -300,6 +405,16 @@ const CaretDownDebug = styled(CaretDownIcon, {
   top: 1,
   transition: "transform 250ms ease",
   "[data-state=open] &": { transform: "rotate(-180deg)" },
+});
+
+const Arrow = styled("div", {
+  position: "relative",
+  top: "100%",
+  backgroundColor: slate.slate4,
+  width: 15,
+  height: 15,
+  transform: "rotate(45deg)",
+  borderTopLeftRadius: 2,
 });
 
 export default NavigationMenuDemo;
